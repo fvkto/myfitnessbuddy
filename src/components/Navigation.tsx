@@ -24,9 +24,6 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
               <span className="block truncate text-lg sm:text-xl font-extrabold bg-linear-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent tracking-tight">
                 MyFitnessBuddy
               </span>
-              <span className="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                Brasil
-              </span>
             </div>
           </div>
 
