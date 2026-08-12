@@ -26,7 +26,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
-  const [gramsAmount, setGramsAmount] = useState<number>(100);
+  const [gramsAmount, setGramsAmount] = useState<string>("100");
   const [activeTab, setActiveTab] = useState<"search" | "create">("search");
 
   // Custom food state
@@ -60,7 +60,8 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
     if (!selectedFood) return;
 
     const referenceGrams = selectedFood.servingWeightGrams || 100;
-    const multiplier = gramsAmount / referenceGrams;
+    const gramsValue = parseInt(gramsAmount, 10) || referenceGrams;
+    const multiplier = gramsValue / referenceGrams;
 
     const logged: Omit<LoggedFood, "id"> = {
       foodId: selectedFood.id,
@@ -68,7 +69,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
       brand: selectedFood.brand,
       mealType: mealType,
       servings: Number(multiplier.toFixed(3)),
-      servingSize: `${gramsAmount}g`,
+      servingSize: `${gramsValue}g`,
       calories: Math.round(selectedFood.calories * multiplier),
       protein: Number((selectedFood.protein * multiplier).toFixed(1)),
       carbs: Number((selectedFood.carbs * multiplier).toFixed(1)),
@@ -78,7 +79,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
 
     onAddFood(logged);
     setSelectedFood(null);
-    setGramsAmount(100);
+    setGramsAmount("100");
     onClose();
   };
 
@@ -102,7 +103,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
 
     onSaveCustomFood(newFood);
     setSelectedFood(newFood);
-    setGramsAmount(Number(customServingWeight) || 100);
+    setGramsAmount(String(Number(customServingWeight) || 100));
     setActiveTab("search");
     // Clear form
     setCustomName("");
@@ -230,6 +231,10 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                 </div>
 
                 {/* Portion Multiplier Slider / Number */}
+                {(() => {
+                  const previewGrams = parseInt(gramsAmount, 10) || 0;
+                  const previewMultiplier = previewGrams / (selectedFood.servingWeightGrams || 100);
+                  return (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                   <div>
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
@@ -241,7 +246,13 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                         step="1"
                         min="1"
                         value={gramsAmount}
-                        onChange={(e) => setGramsAmount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                        onChange={(e) => setGramsAmount(e.target.value)}
+                        onFocus={(e) => e.target.select()}
+                        onBlur={() => {
+                          if (!gramsAmount || parseInt(gramsAmount, 10) < 1) {
+                            setGramsAmount(String(selectedFood.servingWeightGrams || 100));
+                          }
+                        }}
                         className="w-24 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-center"
                       />
                       <span className="text-xs text-slate-500">gramas (g)</span>
@@ -253,30 +264,31 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Kcal</span>
                       <span className="text-blue-600">
-                        {Math.round(selectedFood.calories * (gramsAmount / (selectedFood.servingWeightGrams || 100)))}
+                        {Math.round(selectedFood.calories * previewMultiplier)}
                       </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Prot</span>
                       <span className="text-slate-800 dark:text-slate-200">
-                        {Number((selectedFood.protein * (gramsAmount / (selectedFood.servingWeightGrams || 100))).toFixed(1))}g
+                        {Number((selectedFood.protein * previewMultiplier).toFixed(1))}g
                       </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Carb</span>
                       <span className="text-slate-800 dark:text-slate-200">
-                        {Number((selectedFood.carbs * (gramsAmount / (selectedFood.servingWeightGrams || 100))).toFixed(1))}g
+                        {Number((selectedFood.carbs * previewMultiplier).toFixed(1))}g
                       </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Gord</span>
                       <span className="text-slate-800 dark:text-slate-200">
-                        {Number((selectedFood.fat * (gramsAmount / (selectedFood.servingWeightGrams || 100))).toFixed(1))}g
+                        {Number((selectedFood.fat * previewMultiplier).toFixed(1))}g
                       </span>
                     </div>
                   </div>
                 </div>
-
+                  );
+                })()}
                 <button
                   onClick={handleConfirmAddFood}
                   className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-md shadow-blue-500/20 flex items-center justify-center space-x-2 transition-all"
@@ -305,7 +317,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                     key={food.id}
                     onClick={() => {
                       setSelectedFood(food);
-                      setGramsAmount(food.servingWeightGrams || 100);
+                      setGramsAmount(String(food.servingWeightGrams || 100));
                     }}
                     className={`w-full p-3.5 text-left flex items-center justify-between rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-800/60 transition-colors ${
                       selectedFood?.id === food.id ? "bg-blue-50 dark:bg-blue-950/40 border border-blue-200" : ""
@@ -379,6 +391,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                     placeholder="Ex: 100"
                     value={customServingWeight}
                     onChange={(e) => setCustomServingWeight(e.target.value)}
+                    onFocus={(e) => e.target.select()}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
                   />
                   <span className="text-xs text-slate-500 shrink-0">gramas</span>
