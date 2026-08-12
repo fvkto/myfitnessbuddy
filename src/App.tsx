@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import {
   MealType,
   LoggedFood,
@@ -384,6 +385,9 @@ export default function App() {
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </div>
   );
 }
