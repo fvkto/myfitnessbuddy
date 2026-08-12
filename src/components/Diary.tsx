@@ -182,7 +182,7 @@ export const Diary: React.FC<DiaryProps> = ({
                           {food.name} {food.brand ? `(${food.brand})` : ""}
                         </span>
                         <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                          {food.servingSize} ({food.servings}x) &bull; Prot: {food.protein}g | Carb: {food.carbs}g | Gord: {food.fat}g
+                          {food.servingSize} &bull; Prot: {food.protein}g | Carb: {food.carbs}g | Gord: {food.fat}g
                         </span>
                       </div>
 

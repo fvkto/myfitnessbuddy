@@ -319,7 +319,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </span>
                     </div>
                     <span className="text-[11px] text-slate-400 block mt-0.5">
-                      {food.servingSize} ({food.servings}x) &bull; P: {food.protein}g | C: {food.carbs}g | G: {food.fat}g
+                      {food.servingSize} &bull; P: {food.protein}g | C: {food.carbs}g | G: {food.fat}g
                     </span>
                   </div>
 
@@ -398,7 +398,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
             <div>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Sequência de {streakDays} Dias! 🔥
+                {streakDays > 0 ? `Sequência de ${streakDays} ${streakDays === 1 ? "Dia" : "Dias"}! 🔥` : "Comece sua sequência hoje!"}
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Continuar registrando diariamente garante 2x mais chances de atingir sua meta!

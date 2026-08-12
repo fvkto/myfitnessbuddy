@@ -135,11 +135,43 @@ export function deleteRecipe(recipeId: string): SavedRecipe[] {
   return updated;
 }
 
+// Calcula a sequência ATUAL de dias consecutivos em que o usuário registrou
+// alguma informação no diário (alimento, exercício ou água). A sequência
+// quebra assim que existir um dia sem nenhum registro.
 export function getStreakDays(): number {
   try {
-    const raw = localStorage.getItem(KEYS.STREAK);
-    return raw ? parseInt(raw, 10) : 7;
+    const rawLogs = localStorage.getItem(KEYS.DAY_LOGS);
+    const logsMap: Record<string, DayLog> = rawLogs ? JSON.parse(rawLogs) : {};
+
+    const hasActivity = (log: DayLog | undefined): boolean => {
+      if (!log) return false;
+      return log.foods.length > 0 || log.exercises.length > 0 || log.waterMl > 0;
+    };
+
+    const today = new Date();
+    let cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const toDateStr = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    };
+
+    // Se hoje ainda não tem registro, o dia não terminou — começa a contagem
+    // olhando pra ontem, sem quebrar a sequência que já existia.
+    if (!hasActivity(logsMap[toDateStr(cursor)])) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    let streak = 0;
+    while (hasActivity(logsMap[toDateStr(cursor)])) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return streak;
   } catch {
-    return 7;
+    return 0;
   }
 }

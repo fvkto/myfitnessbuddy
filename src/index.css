@@ -4,6 +4,8 @@ html,
 body {
   background-color: #f1f5f9;
   height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,24 +15,24 @@ body {
   }
 }
 
-/* Hide scrollbars (vertical and horizontal) while keeping scroll functional */
-html {
+/* Hide scrollbars (vertical and horizontal) globally, while keeping scroll functional */
+* {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE / legacy Edge */
 }
 
-html::-webkit-scrollbar {
+*::-webkit-scrollbar {
   display: none; /* Chrome, Safari, newer Edge */
   width: 0;
   height: 0;
 }
 
-* {
+.no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-*::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;

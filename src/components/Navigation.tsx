@@ -16,12 +16,12 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab("dashboard")}>
-            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-blue-500/20">
+          <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer min-w-0" onClick={() => setActiveTab("dashboard")}>
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-blue-500/20 shrink-0">
               <img src="/logo-icon.png" alt="MyFitnessBuddy" className="w-full h-full object-cover" />
             </div>
-            <div>
-              <span className="text-xl font-extrabold bg-linear-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent tracking-tight">
+            <div className="min-w-0">
+              <span className="block truncate text-lg sm:text-xl font-extrabold bg-linear-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent tracking-tight">
                 MyFitnessBuddy
               </span>
               <span className="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
@@ -31,33 +31,35 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
           </div>
 
           {/* Right Action Icons */}
-          <div className="flex items-center space-x-2">
-            {/* Streak Counter */}
-            <div className="flex items-center space-x-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800 text-xs font-bold shadow-2xs">
-              <Flame className="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse" />
-              <span>{streakDays} dias</span>
-            </div>
+          <div className="flex items-center space-x-2 shrink-0">
+            {/* Streak Counter — só aparece a partir de 7 dias consecutivos de registro */}
+            {streakDays >= 7 && (
+              <div className="flex items-center space-x-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-800 text-xs font-bold shadow-2xs">
+                <Flame className="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse" />
+                <span>{streakDays} dias</span>
+              </div>
+            )}
 
             {/* AI Coach Button */}
             <button
               onClick={() => setActiveTab("ai-coach")}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs ${
+              className={`flex items-center justify-center sm:justify-start p-2.5 sm:px-3 sm:py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs ${
                 activeTab === "ai-coach"
                   ? "bg-purple-600 text-white shadow-purple-500/20"
                   : "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100"
               }`}
             >
               <Bot className="w-4 h-4" />
-              <span className="hidden md:inline">Coach IA</span>
+              <span className="hidden sm:inline sm:ml-1.5">Coach IA</span>
             </button>
 
             {/* AI Quick Scanner Button */}
             <button
               onClick={() => setActiveTab("ai-scanner")}
-              className="flex items-center space-x-1 bg-linear-to-r from-blue-600 to-indigo-600 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-md shadow-blue-500/20 hover:opacity-95 transition-all"
+              className="flex items-center justify-center sm:justify-start p-2.5 sm:px-3.5 sm:py-1.5 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-full text-xs font-bold shadow-md shadow-blue-500/20 hover:opacity-95 transition-all"
             >
               <Camera className="w-4 h-4" />
-              <span className="hidden sm:inline">Escanear IA</span>
+              <span className="hidden sm:inline sm:ml-1.5">Escanear IA</span>
             </button>
           </div>
         </div>

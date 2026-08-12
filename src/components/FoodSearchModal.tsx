@@ -26,13 +26,13 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
-  const [servingsMultiplier, setServingsMultiplier] = useState<number>(1);
+  const [gramsAmount, setGramsAmount] = useState<number>(100);
   const [activeTab, setActiveTab] = useState<"search" | "create">("search");
 
   // Custom food state
   const [customName, setCustomName] = useState("");
   const [customBrand, setCustomBrand] = useState("");
-  const [customServing, setCustomServing] = useState("1 porção (100g)");
+  const [customServingWeight, setCustomServingWeight] = useState("100");
   const [customCalories, setCustomCalories] = useState("");
   const [customProtein, setCustomProtein] = useState("");
   const [customCarbs, setCustomCarbs] = useState("");
@@ -59,23 +59,26 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
   const handleConfirmAddFood = () => {
     if (!selectedFood) return;
 
+    const referenceGrams = selectedFood.servingWeightGrams || 100;
+    const multiplier = gramsAmount / referenceGrams;
+
     const logged: Omit<LoggedFood, "id"> = {
       foodId: selectedFood.id,
       name: selectedFood.name,
       brand: selectedFood.brand,
       mealType: mealType,
-      servings: servingsMultiplier,
-      servingSize: selectedFood.servingSize,
-      calories: Math.round(selectedFood.calories * servingsMultiplier),
-      protein: Number((selectedFood.protein * servingsMultiplier).toFixed(1)),
-      carbs: Number((selectedFood.carbs * servingsMultiplier).toFixed(1)),
-      fat: Number((selectedFood.fat * servingsMultiplier).toFixed(1)),
-      fiber: selectedFood.fiber ? Number((selectedFood.fiber * servingsMultiplier).toFixed(1)) : 0,
+      servings: Number(multiplier.toFixed(3)),
+      servingSize: `${gramsAmount}g`,
+      calories: Math.round(selectedFood.calories * multiplier),
+      protein: Number((selectedFood.protein * multiplier).toFixed(1)),
+      carbs: Number((selectedFood.carbs * multiplier).toFixed(1)),
+      fat: Number((selectedFood.fat * multiplier).toFixed(1)),
+      fiber: selectedFood.fiber ? Number((selectedFood.fiber * multiplier).toFixed(1)) : 0,
     };
 
     onAddFood(logged);
     setSelectedFood(null);
-    setServingsMultiplier(1);
+    setGramsAmount(100);
     onClose();
   };
 
@@ -87,8 +90,8 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
       id: `custom-${Date.now()}`,
       name: customName,
       brand: customBrand || "Personalizado",
-      servingSize: customServing || "1 porção (100g)",
-      servingWeightGrams: 100,
+      servingSize: `${customServingWeight || 100}g`,
+      servingWeightGrams: Number(customServingWeight) || 100,
       calories: Number(customCalories),
       protein: Number(customProtein) || 0,
       carbs: Number(customCarbs) || 0,
@@ -99,10 +102,12 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
 
     onSaveCustomFood(newFood);
     setSelectedFood(newFood);
+    setGramsAmount(Number(customServingWeight) || 100);
     setActiveTab("search");
     // Clear form
     setCustomName("");
     setCustomBrand("");
+    setCustomServingWeight("100");
     setCustomCalories("");
     setCustomProtein("");
     setCustomCarbs("");
@@ -212,7 +217,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                       {selectedFood.name}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Porção Padrão: {selectedFood.servingSize}
+                      Referência: {selectedFood.servingSize} ({selectedFood.servingWeightGrams}g)
                     </p>
                   </div>
 
@@ -228,19 +233,18 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                   <div>
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                      Multiplicador de Porção:
+                      Quantidade consumida:
                     </label>
                     <div className="flex items-center space-x-2">
                       <input
                         type="number"
-                        step="0.1"
-                        min="0.1"
-                        max="10"
-                        value={servingsMultiplier}
-                        onChange={(e) => setServingsMultiplier(Math.max(0.1, parseFloat(e.target.value) || 1))}
-                        className="w-20 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-center"
+                        step="1"
+                        min="1"
+                        value={gramsAmount}
+                        onChange={(e) => setGramsAmount(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                        className="w-24 px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-center"
                       />
-                      <span className="text-xs text-slate-500">porção(ões)</span>
+                      <span className="text-xs text-slate-500">gramas (g)</span>
                     </div>
                   </div>
 
@@ -248,19 +252,27 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                   <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-blue-100 dark:border-blue-900 text-xs grid grid-cols-4 gap-1 text-center font-bold">
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Kcal</span>
-                      <span className="text-blue-600">{Math.round(selectedFood.calories * servingsMultiplier)}</span>
+                      <span className="text-blue-600">
+                        {Math.round(selectedFood.calories * (gramsAmount / (selectedFood.servingWeightGrams || 100)))}
+                      </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Prot</span>
-                      <span className="text-slate-800 dark:text-slate-200">{Number((selectedFood.protein * servingsMultiplier).toFixed(1))}g</span>
+                      <span className="text-slate-800 dark:text-slate-200">
+                        {Number((selectedFood.protein * (gramsAmount / (selectedFood.servingWeightGrams || 100))).toFixed(1))}g
+                      </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Carb</span>
-                      <span className="text-slate-800 dark:text-slate-200">{Number((selectedFood.carbs * servingsMultiplier).toFixed(1))}g</span>
+                      <span className="text-slate-800 dark:text-slate-200">
+                        {Number((selectedFood.carbs * (gramsAmount / (selectedFood.servingWeightGrams || 100))).toFixed(1))}g
+                      </span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block font-normal">Gord</span>
-                      <span className="text-slate-800 dark:text-slate-200">{Number((selectedFood.fat * servingsMultiplier).toFixed(1))}g</span>
+                      <span className="text-slate-800 dark:text-slate-200">
+                        {Number((selectedFood.fat * (gramsAmount / (selectedFood.servingWeightGrams || 100))).toFixed(1))}g
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -293,7 +305,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                     key={food.id}
                     onClick={() => {
                       setSelectedFood(food);
-                      setServingsMultiplier(1);
+                      setGramsAmount(food.servingWeightGrams || 100);
                     }}
                     className={`w-full p-3.5 text-left flex items-center justify-between rounded-xl hover:bg-blue-50/50 dark:hover:bg-slate-800/60 transition-colors ${
                       selectedFood?.id === food.id ? "bg-blue-50 dark:bg-blue-950/40 border border-blue-200" : ""
@@ -356,20 +368,29 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Tamanho da Porção
+                  Peso da Porção de Referência (g) *
                 </label>
-                <input
-                  type="text"
-                  placeholder="Ex: 1 unidade (100g)"
-                  value={customServing}
-                  onChange={(e) => setCustomServing(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
-                />
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    step="1"
+                    placeholder="Ex: 100"
+                    value={customServingWeight}
+                    onChange={(e) => setCustomServingWeight(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white"
+                  />
+                  <span className="text-xs text-slate-500 shrink-0">gramas</span>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Os valores nutricionais abaixo devem ser referentes a essa quantidade em gramas.
+                </p>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  Calorias (kcal) *
+                  Calorias para essa porção (kcal) *
                 </label>
                 <input
                   type="number"
