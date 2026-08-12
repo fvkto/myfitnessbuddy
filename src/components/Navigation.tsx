@@ -11,11 +11,14 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
   return (
     <>
       {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs">
+      <header
+        className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xs"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab("dashboard")}>
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20 tracking-tighter">
-              B
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md shadow-blue-500/20">
+              <img src="/logo-icon.png" alt="MyFitnessBuddy" className="w-full h-full object-cover" />
             </div>
             <div>
               <span className="text-xl font-extrabold bg-linear-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent tracking-tight">
