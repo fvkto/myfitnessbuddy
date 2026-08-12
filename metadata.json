@@ -1,6 +1,0 @@
-{
-  "name": "MyFitnessBuddy - Contador de Calorias e Nutrição",
-  "description": "Aplicativo completo de controle de dieta, diário alimentar, metas de macronutrientes, registro de exercícios, acompanhamento de peso e análise de refeições por Inteligência Artificial.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
