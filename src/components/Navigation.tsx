@@ -97,7 +97,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
         className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 md:hidden px-2 pt-1 shadow-lg"
         style={{ paddingBottom: "max(0.25rem, env(safe-area-inset-bottom))" }}
       >
-        <div className="flex items-center justify-around max-w-md mx-auto">
+        <div className="grid grid-cols-5 items-center max-w-md mx-auto">
           {[
             { id: "dashboard", label: "Painel", icon: LayoutDashboard },
             { id: "diary", label: "Diário", icon: BookOpen },
@@ -113,7 +113,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id as any)}
-                  className="flex flex-col items-center -mt-5"
+                  className="flex flex-col items-center justify-center -mt-5"
                 >
                   <div className="w-12 h-12 rounded-full bg-linear-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 ring-4 ring-white dark:ring-slate-900">
                     <Icon className="w-6 h-6" />
@@ -129,7 +129,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, setActiveTab,
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as any)}
-                className={`flex flex-col items-center py-1.5 px-3 rounded-lg transition-colors ${
+                className={`flex flex-col items-center justify-center py-1.5 rounded-lg transition-colors ${
                   isActive
                     ? "text-blue-600 dark:text-blue-400 font-bold"
                     : "text-slate-500 dark:text-slate-400 font-medium"
