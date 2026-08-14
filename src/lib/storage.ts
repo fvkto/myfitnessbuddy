@@ -1,5 +1,5 @@
 import { FoodItem, DayLog, UserGoals, WeightEntry, SavedRecipe } from "../types";
-import { DEFAULT_USER_GOALS, INITIAL_DAY_LOG, INITIAL_WEIGHT_HISTORY, getTodayDateString } from "../data/initialData";
+import { DEFAULT_USER_GOALS, INITIAL_WEIGHT_HISTORY } from "../data/initialData";
 import { INITIAL_FOOD_DATABASE } from "../data/foodDatabase";
 
 const KEYS = {
@@ -24,22 +24,29 @@ export function saveStoredGoals(goals: UserGoals): void {
   localStorage.setItem(KEYS.GOALS, JSON.stringify(goals));
 }
 
+// IDs dos itens de exemplo que vinham pré-carregados em versões antigas do app.
+// Usado só para limpar dados que porventura já foram salvos com eles misturados.
+const LEGACY_SAMPLE_FOOD_IDS = new Set(["lf-1", "lf-2", "lf-3", "lf-4", "lf-5"]);
+const LEGACY_SAMPLE_EXERCISE_IDS = new Set(["ex-1"]);
+
 export function getStoredDayLog(dateStr: string): DayLog {
   try {
     const rawLogs = localStorage.getItem(KEYS.DAY_LOGS);
     const logsMap: Record<string, DayLog> = rawLogs ? JSON.parse(rawLogs) : {};
 
     if (logsMap[dateStr]) {
-      return logsMap[dateStr];
+      const stored = logsMap[dateStr];
+      // Remove quaisquer itens de exemplo legados que tenham ficado salvos
+      // junto de registros reais do usuário.
+      return {
+        ...stored,
+        foods: stored.foods.filter(f => !LEGACY_SAMPLE_FOOD_IDS.has(f.id)),
+        exercises: stored.exercises.filter(e => !LEGACY_SAMPLE_EXERCISE_IDS.has(e.id)),
+      };
     }
 
-    // Default for today if missing: return initial sample
-    const today = getTodayDateString();
-    if (dateStr === today) {
-      return INITIAL_DAY_LOG;
-    }
-
-    // Blank day for past/future
+    // Nenhum registro para esse dia (seja hoje, um dia passado ou futuro):
+    // sempre começa zerado para o usuário preencher.
     return {
       date: dateStr,
       foods: [],
@@ -47,7 +54,12 @@ export function getStoredDayLog(dateStr: string): DayLog {
       waterMl: 0,
     };
   } catch {
-    return INITIAL_DAY_LOG;
+    return {
+      date: dateStr,
+      foods: [],
+      exercises: [],
+      waterMl: 0,
+    };
   }
 }
 

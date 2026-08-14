@@ -15,7 +15,13 @@ body {
   }
 }
 
-/* Hide scrollbars (vertical and horizontal) globally, while keeping scroll functional */
+/* iOS Safari aplica zoom automático ao focar em campos com fonte menor que 16px.
+   Forçamos 16px em todo campo digitável para desativar esse comportamento. */
+input,
+select,
+textarea {
+  font-size: 16px !important;
+}
 * {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE / legacy Edge */
