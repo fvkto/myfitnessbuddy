@@ -8,6 +8,26 @@ interface AuthGateProps {
   children: React.ReactNode;
 }
 
+// Traduz as mensagens de erro mais comuns do Supabase Auth para português.
+// Mensagens não mapeadas caem num texto genérico, para nunca mostrar inglês cru.
+function translateAuthError(message: string | undefined): string {
+  if (!message) return "Não foi possível concluir. Tente novamente.";
+
+  const map: Record<string, string> = {
+    "User already registered": "Usuário já registrado",
+    "Invalid login credentials": "E-mail ou senha incorretos",
+    "Email not confirmed": "E-mail ainda não confirmado. Verifique sua caixa de entrada",
+    "Password should be at least 6 characters": "A senha deve ter pelo menos 6 caracteres",
+    "Unable to validate email address: invalid format": "E-mail inválido",
+    "Signup requires a valid password": "Informe uma senha válida",
+    "Email rate limit exceeded": "Muitas tentativas. Aguarde alguns minutos e tente de novo",
+    "For security purposes, you can only request this after some seconds":
+      "Por segurança, aguarde alguns segundos antes de tentar de novo",
+  };
+
+  return map[message] || message;
+}
+
 export const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null | undefined>(undefined); // undefined = ainda verificando
   const [isSyncing, setIsSyncing] = useState(false);
@@ -108,7 +128,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
     });
 
     if (error) {
-      setAuthError(error.message);
+      setAuthError(translateAuthError(error.message));
       setIsGoogleLoading(false);
     }
     // Em caso de sucesso, o navegador é redirecionado para o Google —
@@ -131,16 +151,14 @@ export const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setInfoMessage(
-          "Conta criada! Se a confirmação por e-mail estiver ativada no Supabase, verifique sua caixa de entrada antes de entrar."
-        );
+        setInfoMessage("Conta criada com sucesso!");
         setMode("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
     } catch (err: any) {
-      setAuthError(err?.message || "Não foi possível concluir. Tente novamente.");
+      setAuthError(translateAuthError(err?.message));
     } finally {
       setIsSubmitting(false);
     }
