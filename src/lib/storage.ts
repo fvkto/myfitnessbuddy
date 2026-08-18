@@ -1,6 +1,7 @@
 import { FoodItem, DayLog, UserGoals, WeightEntry, SavedRecipe } from "../types";
 import { DEFAULT_USER_GOALS, INITIAL_WEIGHT_HISTORY } from "../data/initialData";
 import { INITIAL_FOOD_DATABASE } from "../data/foodDatabase";
+import { pushKeyToCloud } from "./cloudSync";
 
 const KEYS = {
   GOALS: "mfb_user_goals_v1",
@@ -22,6 +23,7 @@ export function getStoredGoals(): UserGoals {
 
 export function saveStoredGoals(goals: UserGoals): void {
   localStorage.setItem(KEYS.GOALS, JSON.stringify(goals));
+  pushKeyToCloud(KEYS.GOALS, goals);
 }
 
 // IDs dos itens de exemplo que vinham pré-carregados em versões antigas do app.
@@ -69,6 +71,7 @@ export function saveStoredDayLog(log: DayLog): void {
     const logsMap: Record<string, DayLog> = rawLogs ? JSON.parse(rawLogs) : {};
     logsMap[log.date] = log;
     localStorage.setItem(KEYS.DAY_LOGS, JSON.stringify(logsMap));
+    pushKeyToCloud(KEYS.DAY_LOGS, logsMap);
   } catch (err) {
     console.error("Erro ao salvar diário:", err);
   }
@@ -85,6 +88,7 @@ export function getStoredWeightHistory(): WeightEntry[] {
 
 export function saveStoredWeightHistory(history: WeightEntry[]): void {
   localStorage.setItem(KEYS.WEIGHT_HISTORY, JSON.stringify(history));
+  pushKeyToCloud(KEYS.WEIGHT_HISTORY, history);
 }
 
 export function getStoredFoodDatabase(): FoodItem[] {
@@ -100,6 +104,7 @@ export function saveCustomFoodToDb(food: FoodItem): FoodItem[] {
   const current = getStoredFoodDatabase();
   const updated = [food, ...current];
   localStorage.setItem(KEYS.FOOD_DATABASE, JSON.stringify(updated));
+  pushKeyToCloud(KEYS.FOOD_DATABASE, updated);
   return updated;
 }
 
@@ -137,6 +142,7 @@ export function saveRecipe(recipe: SavedRecipe): SavedRecipe[] {
   const current = getStoredRecipes();
   const updated = [recipe, ...current];
   localStorage.setItem(KEYS.SAVED_RECIPES, JSON.stringify(updated));
+  pushKeyToCloud(KEYS.SAVED_RECIPES, updated);
   return updated;
 }
 
@@ -144,6 +150,7 @@ export function deleteRecipe(recipeId: string): SavedRecipe[] {
   const current = getStoredRecipes();
   const updated = current.filter(r => r.id !== recipeId);
   localStorage.setItem(KEYS.SAVED_RECIPES, JSON.stringify(updated));
+  pushKeyToCloud(KEYS.SAVED_RECIPES, updated);
   return updated;
 }
 

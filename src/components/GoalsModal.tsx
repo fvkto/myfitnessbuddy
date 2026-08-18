@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UserGoals } from "../types";
 import { calculateRecommendedCalories, calculateDefaultMacros, calculateTDEE } from "../lib/calculators";
-import { Target, Check, Sparkles, Sliders, User, Flame } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
+import { Target, Check, Sparkles, Sliders, User, Flame, LogOut, Mail } from "lucide-react";
 
 interface GoalsModalProps {
   userGoals: UserGoals;
@@ -10,6 +11,21 @@ interface GoalsModalProps {
 
 export const GoalsModal: React.FC<GoalsModalProps> = ({ userGoals, onSaveGoals }) => {
   const [goalsState, setGoalsState] = useState<UserGoals>({ ...userGoals });
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email || null);
+    });
+  }, []);
+
+  const handleLogout = async () => {
+    if (!confirm("Tem certeza que deseja sair da conta?")) return;
+    setIsLoggingOut(true);
+    await supabase.auth.signOut();
+    // A tela de login volta a aparecer automaticamente (AuthGate escuta a sessão).
+  };
 
   const tdee = calculateTDEE(goalsState);
   const recommendedCal = calculateRecommendedCalories(goalsState);
@@ -230,6 +246,27 @@ export const GoalsModal: React.FC<GoalsModalProps> = ({ userGoals, onSaveGoals }
             <span>Salvar Todas as Metas</span>
           </button>
         </form>
+
+        {/* Account Section */}
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Conta</h3>
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center space-x-2 min-w-0">
+              <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 truncate">
+                {userEmail || "Carregando..."}
+              </span>
+            </div>
+            <button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex items-center space-x-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:text-red-700 disabled:opacity-50 shrink-0 ml-3"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sair</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
